@@ -320,6 +320,7 @@
 
       @if (currentSpec()) {
         <div class="preview-container">
+          <!-- Main Document Tabs -->
           <div class="tabs">
             <button 
               class="tab" 
@@ -340,6 +341,22 @@
               TASKS.md
             </button>
           </div>
+
+          <!-- Monorepo Layer Sub-Tabs (Root / Backend / Frontend) -->
+          @if (currentSpec()?.split_modular_artifacts) {
+            <div class="tabs" style="background: rgba(15, 23, 42, 0.5); padding: 0.3rem 0.6rem; margin-top: -0.5rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.4rem;">
+              <span style="font-size: 0.75rem; color: #a5b4fc; font-weight: 600; margin-right: 0.3rem;">🧩 Warstwa Monorepo:</span>
+              <button class="tab" [class.active]="activeSubTab() === 'root'" (click)="activeSubTab.set('root')" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                📌 Master Root
+              </button>
+              <button class="tab" [class.active]="activeSubTab() === 'backend'" (click)="activeSubTab.set('backend')" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: rgba(59, 130, 246, 0.2);">
+                ⚙️ backend/
+              </button>
+              <button class="tab" [class.active]="activeSubTab() === 'frontend'" (click)="activeSubTab.set('frontend')" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: rgba(236, 72, 153, 0.2);">
+                🎨 frontend/
+              </button>
+            </div>
+          }
 
           <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
             <button class="btn btn-secondary" (click)="copyContent()">{{ t('copyBtn') }}</button>

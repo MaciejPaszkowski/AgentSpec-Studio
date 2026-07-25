@@ -55,4 +55,12 @@ export interface SpecResponse extends SpecCreateRequest {
   agents_md?: string;
   spec_md?: string;
   tasks_md?: string;
+
+  backend_agents_md?: string;
+  backend_spec_md?: string;
+  backend_tasks_md?: string;
+
+  frontend_agents_md?: string;
+  frontend_spec_md?: string;
+  frontend_tasks_md?: string;
 }

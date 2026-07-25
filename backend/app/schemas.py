@@ -36,6 +36,14 @@ class SpecResponseSchema(SpecCreateSchema):
     spec_md: Optional[str] = None
     tasks_md: Optional[str] = None
 
+    backend_agents_md: Optional[str] = None
+    backend_spec_md: Optional[str] = None
+    backend_tasks_md: Optional[str] = None
+
+    frontend_agents_md: Optional[str] = None
+    frontend_spec_md: Optional[str] = None
+    frontend_tasks_md: Optional[str] = None
+
     class Config:
         from_attributes = True
 

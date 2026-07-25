@@ -442,9 +442,10 @@ export class AppComponent implements OnInit {
   generateFunctionalTests = signal<boolean>(false);
   splitModularArtifacts = signal<boolean>(true);
 
-  // Results State
+  // Results State & Sub-tabs for Monorepo
   currentSpec = signal<SpecResponse | null>(null);
   activeTab = signal<'agents' | 'spec' | 'tasks'>('agents');
+  activeSubTab = signal<'root' | 'backend' | 'frontend'>('root');
 
   // History State
   savedSpecs = signal<SpecResponse[]>([]);
@@ -483,6 +484,7 @@ export class AppComponent implements OnInit {
     this.selectedTesting.set(['pytest', 'vitest']);
 
     this.splitModularArtifacts.set(true);
+    this.activeSubTab.set('root');
     this.currentSpec.set(null);
   }
 
@@ -759,9 +761,28 @@ export class AppComponent implements OnInit {
   get activeContent(): string {
     const spec = this.currentSpec();
     if (!spec) return '';
-    if (this.activeTab() === 'agents') return spec.agents_md || '';
-    if (this.activeTab() === 'spec') return spec.spec_md || '';
-    return spec.tasks_md || '';
+
+    const sub = this.activeSubTab();
+
+    if (this.activeTab() === 'agents') {
+      if (sub === 'backend' && spec.backend_agents_md) return spec.backend_agents_md;
+      if (sub === 'frontend' && spec.frontend_agents_md) return spec.frontend_agents_md;
+      return spec.agents_md || '';
+    }
+
+    if (this.activeTab() === 'spec') {
+      if (sub === 'backend' && spec.backend_spec_md) return spec.backend_spec_md;
+      if (sub === 'frontend' && spec.frontend_spec_md) return spec.frontend_spec_md;
+      return spec.spec_md || '';
+    }
+
+    if (this.activeTab() === 'tasks') {
+      if (sub === 'backend' && spec.backend_tasks_md) return spec.backend_tasks_md;
+      if (sub === 'frontend' && spec.frontend_tasks_md) return spec.frontend_tasks_md;
+      return spec.tasks_md || '';
+    }
+
+    return '';
   }
 
   copyContent() {

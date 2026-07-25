@@ -173,6 +173,21 @@ PRESET_OPTIONS = OptionsResponse(
     ]
 )
 
+def populate_response(db_spec: SpecificationModel, artifacts: dict) -> SpecResponseSchema:
+    res = SpecResponseSchema.model_validate(db_spec)
+    res.agents_md = artifacts["agents_md"]
+    res.spec_md = artifacts["spec_md"]
+    res.tasks_md = artifacts["tasks_md"]
+
+    res.backend_agents_md = artifacts.get("backend_agents_md")
+    res.backend_spec_md = artifacts.get("backend_spec_md")
+    res.backend_tasks_md = artifacts.get("backend_tasks_md")
+
+    res.frontend_agents_md = artifacts.get("frontend_agents_md")
+    res.frontend_spec_md = artifacts.get("frontend_spec_md")
+    res.frontend_tasks_md = artifacts.get("frontend_tasks_md")
+    return res
+
 @app.get("/api/v1/options", response_model=OptionsResponse)
 def get_preset_options():
     return PRESET_OPTIONS
@@ -209,11 +224,7 @@ def create_specification(spec_in: SpecCreateSchema, db: Session = Depends(get_db
     db.refresh(db_spec)
 
     artifacts = generate_agent_artifacts(spec_in.model_dump())
-    res = SpecResponseSchema.model_validate(db_spec)
-    res.agents_md = artifacts["agents_md"]
-    res.spec_md = artifacts["spec_md"]
-    res.tasks_md = artifacts["tasks_md"]
-    return res
+    return populate_response(db_spec, artifacts)
 
 @app.get("/api/v1/specs", response_model=List[SpecResponseSchema])
 def list_specifications(db: Session = Depends(get_db)):
@@ -245,11 +256,7 @@ def list_specifications(db: Session = Depends(get_db)):
             "generate_functional_tests": getattr(s, "generate_functional_tests", False),
             "split_modular_artifacts": getattr(s, "split_modular_artifacts", False)
         })
-        res = SpecResponseSchema.model_validate(s)
-        res.agents_md = artifacts["agents_md"]
-        res.spec_md = artifacts["spec_md"]
-        res.tasks_md = artifacts["tasks_md"]
-        results.append(res)
+        results.append(populate_response(s, artifacts))
     return results
 
 @app.get("/api/v1/specs/{spec_id}", response_model=SpecResponseSchema)
@@ -283,11 +290,7 @@ def get_specification(spec_id: str, db: Session = Depends(get_db)):
         "generate_functional_tests": getattr(s, "generate_functional_tests", False),
         "split_modular_artifacts": getattr(s, "split_modular_artifacts", False)
     })
-    res = SpecResponseSchema.model_validate(s)
-    res.agents_md = artifacts["agents_md"]
-    res.spec_md = artifacts["spec_md"]
-    res.tasks_md = artifacts["tasks_md"]
-    return res
+    return populate_response(s, artifacts)
 
 @app.delete("/api/v1/specs/{spec_id}")
 def delete_specification(spec_id: str, db: Session = Depends(get_db)):

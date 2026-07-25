@@ -42,7 +42,7 @@ auto_migrate_columns()
 app = FastAPI(
     title="AgentSpec Studio API",
     description="API do zbierania specyfikacji i generowania reguł dla agentów AI z obsługą 6 języków wyjściowych i hierarchicznego podziału plików",
-    version="0.1.0"
+    version="0.2.0"
 )
 
 # Enable CORS for Angular frontend

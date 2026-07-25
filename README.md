@@ -1,4 +1,4 @@
-# ⚡ AgentSpec Studio (v0.1.0)
+# ⚡ AgentSpec Studio (v0.2.0)
 
 **AgentSpec Studio** to zaawansowany generator specyfikacji technicznych (`SPEC.md`), reguł dla agentów AI (`AGENTS.md` / `CLAUDE.md`), harmonogramów zadań (`TASKS.md`) oraz automatycznych przepływów CI/CD.
 

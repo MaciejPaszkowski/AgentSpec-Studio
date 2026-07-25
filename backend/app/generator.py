@@ -308,6 +308,8 @@ def generate_agent_artifacts(spec: Dict[str, Any]) -> Dict[str, Any]:
     deployment_mode = spec.get("deployment_mode", "docker-compose")
     arch_pattern = spec.get("architecture_pattern", "clean")
     lang_out = spec.get("language_output", "pl")
+    split_modular = spec.get("split_modular_artifacts", False)
+
     if lang_out not in TRANSLATIONS:
         lang_out = "pl"
     t = TRANSLATIONS[lang_out]
@@ -363,9 +365,39 @@ graph TD
     Backend -->|ORM / SQL| DB[("🗄️ {db_label}")]
 ```"""
 
-    # Build AGENTS.md / CLAUDE.md
     filename_agent = 'CLAUDE.md' if agent_type == 'claude-code' else 'AGENTS.md'
-    agents_md = f"""# {t['agents_title']} ({filename_agent})
+
+    # Master Root AGENTS.md
+    if split_modular:
+        agents_md = f"""# {t['agents_title']} (Master Root: {filename_agent})
+
+> 🧩 **Struktura Modułowa Monorepo**: Projekt posiada dedykowane pliki zasad dla poszczególnych warstw:
+> - Backend: [`backend/{filename_agent}`](file:///backend/{filename_agent})
+> - Frontend: [`frontend/{filename_agent}`](file:///frontend/{filename_agent})
+
+## {t['arch_section']}
+- **{t['project']}**: {title}
+- **{t['arch_pattern']}**: {arch_pattern.upper()} (Modular Split)
+- **{t['deployment']}**: {dep_label}
+- **{t['api_proto']}**: {', '.join(api_protocols).upper()}
+- **{t['languages']}**: {', '.join(languages) if languages else 'N/A'}
+
+## Globalne Komendy Środowiskowe
+{t['cmd_intro']}
+{chr(10).join(commands)}
+
+## Dedykowane Pod-Instrukcje:
+1. **Backend Agent Rules**: Przejdź do `backend/{filename_agent}` dla komend backendowych i reguł bazy danych.
+2. **Frontend Agent Rules**: Przejdź do `frontend/{filename_agent}` dla komend Angular/React i reguł UI.
+
+## {t['rules_section']}
+{t['tdd_rule'] if enforce_tdd else t['non_tdd_rule']}
+- **{t['required_tests']}**: {', '.join(test_types)}.
+{t['zero_hallucination']}
+{t['compliance_audit'] if enforce_spec_compliance else ''}
+"""
+    else:
+        agents_md = f"""# {t['agents_title']} ({filename_agent})
 
 ## {t['arch_section']}
 - **{t['project']}**: {title}
@@ -403,7 +435,7 @@ graph TD
 {t['dod_3']}
 """
 
-    # Build SPEC.md
+    # Build Master SPEC.md
     spec_md = f"""# {t['spec_title'].format(title=title)}
 
 ## {t['spec_overview']}
@@ -437,7 +469,7 @@ graph TD
    - **Then**: Server returns error status with detailed reason.
 """
 
-    # Build TASKS.md
+    # Build Master TASKS.md
     tasks_md = f"""# {t['tasks_title'].format(title=title)}
 
 Spec: `docs/SPEC.md`
@@ -464,6 +496,87 @@ Spec: `docs/SPEC.md`
   - [ ] Audit implementation against docs/SPEC.md & mark tasks [x]
 """
 
+    backend_agents_md = None
+    backend_spec_md = None
+    backend_tasks_md = None
+    frontend_agents_md = None
+    frontend_spec_md = None
+    frontend_tasks_md = None
+
+    if split_modular:
+        # Dedicated Backend AGENTS.md
+        be_cmds = [cmd for cmd in commands if 'docker' in cmd.lower() or any(be in cmd.lower() for be in backend_frameworks) or any(db in cmd.lower() for db in databases) or 'pytest' in cmd.lower() or 'python' in cmd.lower()]
+        backend_agents_md = f"""# Backend Agent Instructions (`backend/{filename_agent}`)
+
+## 1. Backend Stack & Architecture
+- **Frameworks**: {', '.join(backend_frameworks)}
+- **Databases**: {', '.join(databases)}
+- **Architecture**: {arch_pattern.upper()} Layered / Clean
+
+## 2. Verification Commands
+{chr(10).join(be_cmds) if be_cmds else '- Run pytest or backend test runner'}
+
+## 3. Backend Specific Rules
+- Enforce strict type hints and Pydantic validation.
+- Always use Repository / Service pattern for Database operations.
+- {t['tdd_rule']}
+"""
+
+        # Dedicated Backend SPEC.md
+        backend_spec_md = f"""# Backend Specification (`backend/SPEC.md`)
+
+## 1. API Endpoints & Schemas
+- **Protocols**: {', '.join(api_protocols).upper()}
+- **Database Schema**: {', '.join(databases)}
+
+## 2. Business Logic & Services
+{description if description else title}
+"""
+
+        # Dedicated Backend TASKS.md
+        backend_tasks_md = f"""# Backend Task Checklist (`backend/TASKS.md`)
+
+- [ ] **Backend Step 1**: Set up DB models & migrations
+- [ ] **Backend Step 2**: Implement service logic & write tests
+- [ ] **Backend Step 3**: Create API endpoints & verify CORS
+"""
+
+        # Dedicated Frontend AGENTS.md
+        fe_cmds = [cmd for cmd in commands if 'angular' in cmd.lower() or 'react' in cmd.lower() or 'vue' in cmd.lower() or 'ng' in cmd.lower() or 'npm' in cmd.lower() or 'vitest' in cmd.lower()]
+        frontend_agents_md = f"""# Frontend Agent Instructions (`frontend/{filename_agent}`)
+
+## 1. Frontend Stack & Architecture
+- **Framework**: {', '.join(frontend_frameworks)}
+- **State Management**: Signals / Reactive State
+- **Styling**: Vanilla CSS / Utility Tokens
+
+## 2. Verification Commands
+{chr(10).join(fe_cmds) if fe_cmds else '- Run frontend test runner'}
+
+## 3. Frontend Specific Rules
+- Keep components standalone and modular.
+- Do not make direct blocking HTTP calls in components; use Services.
+"""
+
+        # Dedicated Frontend SPEC.md
+        frontend_spec_md = f"""# Frontend Specification (`frontend/SPEC.md`)
+
+## 1. UI Components & Layout
+- **Framework**: {', '.join(frontend_frameworks)}
+- **Views**: Form view, Preview tab, History sidebar.
+
+## 2. State & HTTP Integration
+- Connects to backend API endpoints via HTTP client.
+"""
+
+        # Dedicated Frontend TASKS.md
+        frontend_tasks_md = f"""# Frontend Task Checklist (`frontend/TASKS.md`)
+
+- [ ] **Frontend Step 1**: Set up component layout & CSS design system
+- [ ] **Frontend Step 2**: Bind signals & form controls
+- [ ] **Frontend Step 3**: Integrate HTTP services with backend API
+"""
+
     ci_workflow = f"""name: CI Workflow
 
 on:
@@ -485,5 +598,11 @@ jobs:
         "agents_md": agents_md,
         "spec_md": spec_md,
         "tasks_md": tasks_md,
+        "backend_agents_md": backend_agents_md,
+        "backend_spec_md": backend_spec_md,
+        "backend_tasks_md": backend_tasks_md,
+        "frontend_agents_md": frontend_agents_md,
+        "frontend_spec_md": frontend_spec_md,
+        "frontend_tasks_md": frontend_tasks_md,
         "ci_workflow": ci_workflow
     }

@@ -45,6 +45,7 @@ export interface SpecCreateRequest {
   generate_unit_tests: boolean;
   generate_integration_tests: boolean;
   generate_functional_tests: boolean;
+  split_modular_artifacts?: boolean;
 }
 
 export interface SpecResponse extends SpecCreateRequest {

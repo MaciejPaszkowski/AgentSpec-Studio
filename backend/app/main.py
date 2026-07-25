@@ -5,18 +5,43 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.database import engine, Base, get_db
 from app.models import SpecificationModel
 from app.schemas import SpecCreateSchema, SpecResponseSchema, OptionsResponse, TechOption
 from app.generator import generate_agent_artifacts
 
-# Create tables
+# Create tables & auto-migrate missing columns for existing PostgreSQL DBs
 Base.metadata.create_all(bind=engine)
+
+def auto_migrate_columns():
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("""
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS deployment_mode VARCHAR DEFAULT 'docker-compose';
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS architecture_pattern VARCHAR DEFAULT 'clean';
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS language_output VARCHAR DEFAULT 'pl';
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS security_standards JSON DEFAULT '[]';
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS api_protocols JSON DEFAULT '[]';
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS mcp_integrations JSON DEFAULT '[]';
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS git_ci_cd VARCHAR DEFAULT 'github-actions';
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS preset_template VARCHAR DEFAULT 'custom';
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS enforce_spec_compliance_check BOOLEAN DEFAULT TRUE;
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS generate_unit_tests BOOLEAN DEFAULT TRUE;
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS generate_integration_tests BOOLEAN DEFAULT TRUE;
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS generate_functional_tests BOOLEAN DEFAULT FALSE;
+                ALTER TABLE specifications ADD COLUMN IF NOT EXISTS split_modular_artifacts BOOLEAN DEFAULT FALSE;
+            """))
+            conn.commit()
+    except Exception as e:
+        print("Auto-migration notice:", e)
+
+auto_migrate_columns()
 
 app = FastAPI(
     title="AgentSpec Studio API",
-    description="API do zbierania specyfikacji i generowania reguł dla agentów AI z obsługą 6 języków wyjściowych",
+    description="API do zbierania specyfikacji i generowania reguł dla agentów AI z obsługą 6 języków wyjściowych i hierarchicznego podziału plików",
     version="0.1.0"
 )
 
@@ -176,7 +201,8 @@ def create_specification(spec_in: SpecCreateSchema, db: Session = Depends(get_db
         enforce_spec_compliance_check=spec_in.enforce_spec_compliance_check,
         generate_unit_tests=spec_in.generate_unit_tests,
         generate_integration_tests=spec_in.generate_integration_tests,
-        generate_functional_tests=spec_in.generate_functional_tests
+        generate_functional_tests=spec_in.generate_functional_tests,
+        split_modular_artifacts=spec_in.split_modular_artifacts
     )
     db.add(db_spec)
     db.commit()
@@ -216,7 +242,8 @@ def list_specifications(db: Session = Depends(get_db)):
             "enforce_spec_compliance_check": getattr(s, "enforce_spec_compliance_check", True),
             "generate_unit_tests": getattr(s, "generate_unit_tests", True),
             "generate_integration_tests": getattr(s, "generate_integration_tests", True),
-            "generate_functional_tests": getattr(s, "generate_functional_tests", False)
+            "generate_functional_tests": getattr(s, "generate_functional_tests", False),
+            "split_modular_artifacts": getattr(s, "split_modular_artifacts", False)
         })
         res = SpecResponseSchema.model_validate(s)
         res.agents_md = artifacts["agents_md"]
@@ -253,7 +280,8 @@ def get_specification(spec_id: str, db: Session = Depends(get_db)):
         "enforce_spec_compliance_check": getattr(s, "enforce_spec_compliance_check", True),
         "generate_unit_tests": getattr(s, "generate_unit_tests", True),
         "generate_integration_tests": getattr(s, "generate_integration_tests", True),
-        "generate_functional_tests": getattr(s, "generate_functional_tests", False)
+        "generate_functional_tests": getattr(s, "generate_functional_tests", False),
+        "split_modular_artifacts": getattr(s, "split_modular_artifacts", False)
     })
     res = SpecResponseSchema.model_validate(s)
     res.agents_md = artifacts["agents_md"]
@@ -298,16 +326,31 @@ def export_spec_zip(spec_id: str, db: Session = Depends(get_db)):
         "enforce_spec_compliance_check": getattr(s, "enforce_spec_compliance_check", True),
         "generate_unit_tests": getattr(s, "generate_unit_tests", True),
         "generate_integration_tests": getattr(s, "generate_integration_tests", True),
-        "generate_functional_tests": getattr(s, "generate_functional_tests", False)
+        "generate_functional_tests": getattr(s, "generate_functional_tests", False),
+        "split_modular_artifacts": getattr(s, "split_modular_artifacts", False)
     })
 
     zip_buffer = io.BytesIO()
     filename_agent = "CLAUDE.md" if s.agent_type == "claude-code" else "AGENTS.md"
-    
+    split_modular = getattr(s, "split_modular_artifacts", False)
+
     with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+        # Master Root files
         zip_file.writestr(filename_agent, artifacts["agents_md"])
         zip_file.writestr("docs/SPEC.md", artifacts["spec_md"])
         zip_file.writestr("docs/TASKS.md", artifacts["tasks_md"])
+
+        # Dedicated Sub-module files for Monorepo
+        if split_modular:
+            if artifacts.get("backend_agents_md"):
+                zip_file.writestr(f"backend/{filename_agent}", artifacts["backend_agents_md"])
+                zip_file.writestr("backend/SPEC.md", artifacts["backend_spec_md"])
+                zip_file.writestr("backend/TASKS.md", artifacts["backend_tasks_md"])
+            if artifacts.get("frontend_agents_md"):
+                zip_file.writestr(f"frontend/{filename_agent}", artifacts["frontend_agents_md"])
+                zip_file.writestr("frontend/SPEC.md", artifacts["frontend_spec_md"])
+                zip_file.writestr("frontend/TASKS.md", artifacts["frontend_tasks_md"])
+
         if artifacts.get("ci_workflow"):
             zip_file.writestr(".github/workflows/ci.yml", artifacts["ci_workflow"])
 

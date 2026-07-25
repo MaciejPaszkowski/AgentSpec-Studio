@@ -30,5 +30,6 @@ class SpecificationModel(Base):
     generate_unit_tests = Column(Boolean, nullable=False, default=True)
     generate_integration_tests = Column(Boolean, nullable=False, default=True)
     generate_functional_tests = Column(Boolean, nullable=False, default=False)
+    split_modular_artifacts = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

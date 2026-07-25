@@ -80,6 +80,9 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     aiInterviewBtn: '🤖 Wywiad ze Specyfikacją (Prompt AI)',
     hideAiInterviewBtn: '🤖 Ukryj Wywiad AI',
     refreshDbBtn: '🔄 Odśwież Bazę',
+    newProjectBtn: '➕ Nowy Projekt',
+    saveProjectBtn: '💾 Zapisz Projekt',
+    loadProjectBtn: '📂 Odczytaj Projekt',
     aiInterviewTitle: '🤖 Prompt do Przeprowadzenia Wywiadu ze Specyfikacją z Agentem AI',
     aiInterviewSub: 'Skopiuj poniższy prompt i wklej go do swojego agenta (agy, Claude Code, Codex), aby przeprowadzony został z Tobą krótki wywiad precyzujący cel biznesowy:',
     quickStartTitle: '🚀 Szybki Start - Gotowe Presety Projektowe 1-Kliknięciem:',
@@ -106,6 +109,7 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     workflowHeader: '🛠️ Opcje Procesowe i Testowanie dla Agenta AI',
     enforceTdd: '🔴🟢 Wymuszaj metodykę AI-TDD (Red-Green-Refactor)',
     enforceCompliance: '🛡️ Zadanie Końcowe: Obowiązkowy Audyt Zgodności ze SPEC.md przed Oddaniem Zadania',
+    splitModularLabel: '🧩 Podział Modułowy (Monorepo: backend/AGENTS.md & frontend/AGENTS.md)',
     testTypesHeader: 'Rodzaje Testów Do Wygenerowania przez Agenta:',
     unitTests: '🧪 Testy Jednostkowe (Unit Tests)',
     integrationTests: '🔗 Testy Integracyjne (Integration Tests)',
@@ -129,6 +133,9 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     aiInterviewBtn: '🤖 Spec Interview (AI Prompt)',
     hideAiInterviewBtn: '🤖 Hide AI Interview',
     refreshDbBtn: '🔄 Refresh DB',
+    newProjectBtn: '➕ New Project',
+    saveProjectBtn: '💾 Save Project',
+    loadProjectBtn: '📂 Load Project',
     aiInterviewTitle: '🤖 AI Agent Specification Interview Prompt',
     aiInterviewSub: 'Copy the prompt below and paste it into your AI agent (agy, Claude Code, Codex) to conduct an interactive spec interview:',
     quickStartTitle: '🚀 Quick Start - 1-Click Project Presets:',
@@ -155,6 +162,7 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     workflowHeader: '🛠️ Process Options & AI Testing',
     enforceTdd: '🔴🟢 Enforce AI-TDD Methodology (Red-Green-Refactor)',
     enforceCompliance: '🛡️ Final Step: Mandatory Compliance Audit against SPEC.md',
+    splitModularLabel: '🧩 Hierarchical Split Artifacts (Monorepo: backend/ & frontend/)',
     testTypesHeader: 'Test Types for AI Agent to Generate:',
     unitTests: '🧪 Unit Tests',
     integrationTests: '🔗 Integration Tests',
@@ -178,6 +186,9 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     aiInterviewBtn: '🤖 Spezifikations-Interview (KI-Prompt)',
     hideAiInterviewBtn: '🤖 Interview Ausblenden',
     refreshDbBtn: '🔄 DB Aktualisieren',
+    newProjectBtn: '➕ Neues Projekt',
+    saveProjectBtn: '💾 Projekt Speichern',
+    loadProjectBtn: '📂 Projekt Laden',
     aiInterviewTitle: '🤖 KI-Agent Spezifikations-Interview-Prompt',
     aiInterviewSub: 'Kopieren Sie den folgenden Prompt in Ihren KI-Agenten (agy, Claude Code, Codex) für ein interaktives Interview:',
     quickStartTitle: '🚀 Schnellstart - 1-Klick-Projektvorlagen:',
@@ -204,6 +215,7 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     workflowHeader: '🛠️ Prozessoptionen & KI-Testing',
     enforceTdd: '🔴🟢 KI-TDD-Methodik erzwingen (Red-Green-Refactor)',
     enforceCompliance: '🛡️ Letzter Schritt: Obligatorisches Compliance-Audit gegen SPEC.md',
+    splitModularLabel: '🧩 Hierarchische Modulare Artefakte (Monorepo: backend/ & frontend/)',
     testTypesHeader: 'Zu generierende Testarten:',
     unitTests: '🧪 Unit-Tests',
     integrationTests: '🔗 Integrationstests',
@@ -227,6 +239,9 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     aiInterviewBtn: '🤖 Interview de Spécification (Prompt IA)',
     hideAiInterviewBtn: '🤖 Masquer l\'Interview',
     refreshDbBtn: '🔄 Rafraîchir BD',
+    newProjectBtn: '➕ Nouveau Projet',
+    saveProjectBtn: '💾 Enregistrer Projet',
+    loadProjectBtn: '📂 Charger Projet',
     aiInterviewTitle: '🤖 Prompt d\'Interview de Spécification IA',
     aiInterviewSub: 'Copiez le prompt ci-dessous dans votre agent IA pour mener une interview de spécification :',
     quickStartTitle: '🚀 Démarrage Rapide - Préréglages en 1 Clic:',
@@ -253,6 +268,7 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     workflowHeader: '🛠️ Options de Processus & Tests IA',
     enforceTdd: '🔴🟢 Appliquer la méthodologie AI-TDD (Red-Green-Refactor)',
     enforceCompliance: '🛡️ Étape Finale: Audit de Conformité Obligatoire avec SPEC.md',
+    splitModularLabel: '🧩 Artefacts Modulaires Hiérarchiques (Monorepo: backend/ & frontend/)',
     testTypesHeader: 'Types de Tests à Générer:',
     unitTests: '🧪 Tests Unitaires',
     integrationTests: '🔗 Tests d\'Intégration',
@@ -276,6 +292,9 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     aiInterviewBtn: '🤖 Entrevista de Especificación (Prompt IA)',
     hideAiInterviewBtn: '🤖 Ocultar Entrevista',
     refreshDbBtn: '🔄 Actualizar BD',
+    newProjectBtn: '➕ Nuevo Proyecto',
+    saveProjectBtn: '💾 Guardar Proyecto',
+    loadProjectBtn: '📂 Cargar Proyecto',
     aiInterviewTitle: '🤖 Prompt de Entrevista de Especificación IA',
     aiInterviewSub: 'Copia el siguiente prompt en tu agente IA para realizar una entrevista interactiva:',
     quickStartTitle: '🚀 Inicio Rápido - Plantillas en 1 Clic:',
@@ -302,6 +321,7 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     workflowHeader: '🛠️ Opciones de Proceso y Pruebas IA',
     enforceTdd: '🔴🟢 Forzar metodología AI-TDD (Red-Green-Refactor)',
     enforceCompliance: '🛡️ Paso Final: Auditoría Obligatoria de Cumplimiento con SPEC.md',
+    splitModularLabel: '🧩 Artefactos Modulares Jerárquicos (Monorepo: backend/ & frontend/)',
     testTypesHeader: 'Tipos de Pruebas a Generar:',
     unitTests: '🧪 Pruebas Unitarias',
     integrationTests: '🔗 Pruebas de Integración',
@@ -325,6 +345,9 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     aiInterviewBtn: '🤖 Интервью по Спецификации (ИИ-Промпт)',
     hideAiInterviewBtn: '🤖 Скрыть Интервью',
     refreshDbBtn: '🔄 Обновить БД',
+    newProjectBtn: '➕ Новый Проект',
+    saveProjectBtn: '💾 Сохранить Проект',
+    loadProjectBtn: '📂 Загрузить Проект',
     aiInterviewTitle: '🤖 Промпт для Интервью по Спецификации с ИИ-Агентом',
     aiInterviewSub: 'Скопируйте промпт ниже и вставьте его вашему ИИ-агенту (agy, Claude Code, Codex) для проведения интервью:',
     quickStartTitle: '🚀 Быстрый Старт - Пресеты Проектов в 1 Клик:',
@@ -351,6 +374,7 @@ export const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     workflowHeader: '🛠️ Опции Процесса и Тестирование ИИ',
     enforceTdd: '🔴🟢 Принудительная методология AI-TDD (Red-Green-Refactor)',
     enforceCompliance: '🛡️ Финальный Шаг: Обязательный Аудит Соответствия с SPEC.md',
+    splitModularLabel: '🧩 Иерархический Модульный Раздел (Monorepo: backend/ & frontend/)',
     testTypesHeader: 'Типы Тестов для Генерации:',
     unitTests: '🧪 Юнит-Тесты',
     integrationTests: '🔗 Интеграционные Тесты',
@@ -410,12 +434,13 @@ export class AppComponent implements OnInit {
 
   customRules = signal<string>(DEFAULT_TEXTS['pl'].customRules);
   
-  // Workflow & Testing Toggles
+  // Workflow, Testing & Modular Toggles
   enforceTdd = signal<boolean>(true);
   enforceSpecCompliance = signal<boolean>(true);
   generateUnitTests = signal<boolean>(true);
   generateIntegrationTests = signal<boolean>(true);
   generateFunctionalTests = signal<boolean>(false);
+  splitModularArtifacts = signal<boolean>(true);
 
   // Results State
   currentSpec = signal<SpecResponse | null>(null);
@@ -431,6 +456,69 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.loadOptions();
     this.loadHistory();
+  }
+
+  // 1. Reset Form for New Project
+  newProject() {
+    this.presetTemplate.set('custom');
+    const lang = this.uiLanguage();
+    const defaults = DEFAULT_TEXTS[lang] || DEFAULT_TEXTS['pl'];
+    this.title.set(defaults.title);
+    this.description.set(defaults.description);
+    this.customRules.set(defaults.customRules);
+
+    this.agentType.set('agy');
+    this.deploymentMode.set('docker-compose');
+    this.architecturePattern.set('clean');
+    this.gitCiCd.set('github-actions');
+
+    this.selectedSecurity.set(['owasp', 'jwt']);
+    this.selectedProtocols.set(['rest']);
+    this.selectedMcp.set(['db-mcp']);
+
+    this.selectedLanguages.set(['python', 'typescript']);
+    this.selectedBackend.set(['fastapi']);
+    this.selectedFrontend.set(['angular']);
+    this.selectedDatabases.set(['postgres']);
+    this.selectedTesting.set(['pytest', 'vitest']);
+
+    this.splitModularArtifacts.set(true);
+    this.currentSpec.set(null);
+  }
+
+  // 2. Save Project explicitly
+  saveProject() {
+    this.generate();
+  }
+
+  // 3. Load Project from PostgreSQL DB into form and preview
+  loadProject(spec: SpecResponse) {
+    this.currentSpec.set(spec);
+
+    if (spec.title) this.title.set(spec.title);
+    if (spec.description) this.description.set(spec.description);
+    if (spec.agent_type) this.agentType.set(spec.agent_type);
+    if (spec.deployment_mode) this.deploymentMode.set(spec.deployment_mode);
+    if (spec.architecture_pattern) this.architecturePattern.set(spec.architecture_pattern);
+    if (spec.language_output) this.languageOutput.set(spec.language_output);
+
+    if (spec.security_standards) this.selectedSecurity.set(spec.security_standards);
+    if (spec.api_protocols) this.selectedProtocols.set(spec.api_protocols);
+    if (spec.mcp_integrations) this.selectedMcp.set(spec.mcp_integrations);
+
+    if (spec.languages) this.selectedLanguages.set(spec.languages);
+    if (spec.backend_frameworks) this.selectedBackend.set(spec.backend_frameworks);
+    if (spec.frontend_frameworks) this.selectedFrontend.set(spec.frontend_frameworks);
+    if (spec.databases) this.selectedDatabases.set(spec.databases);
+    if (spec.testing_frameworks) this.selectedTesting.set(spec.testing_frameworks);
+
+    if (spec.custom_rules) this.customRules.set(spec.custom_rules);
+    if (spec.enforce_tdd !== undefined) this.enforceTdd.set(spec.enforce_tdd);
+    if (spec.enforce_spec_compliance_check !== undefined) this.enforceSpecCompliance.set(spec.enforce_spec_compliance_check);
+    if (spec.generate_unit_tests !== undefined) this.generateUnitTests.set(spec.generate_unit_tests);
+    if (spec.generate_integration_tests !== undefined) this.generateIntegrationTests.set(spec.generate_integration_tests);
+    if (spec.generate_functional_tests !== undefined) this.generateFunctionalTests.set(spec.generate_functional_tests);
+    if (spec.split_modular_artifacts !== undefined) this.splitModularArtifacts.set(spec.split_modular_artifacts);
   }
 
   // Helper method for calling free translation API (MyMemory API)
@@ -559,6 +647,7 @@ export class AppComponent implements OnInit {
       this.selectedTesting.set(['pytest', 'vitest']);
       this.selectedSecurity.set(['owasp', 'jwt', 'gdpr']);
       this.selectedProtocols.set(['rest']);
+      this.splitModularArtifacts.set(true);
     } else if (presetId === 'ai-rag') {
       this.architecturePattern.set('ddd');
       this.selectedLanguages.set(['python']);
@@ -568,6 +657,7 @@ export class AppComponent implements OnInit {
       this.selectedTesting.set(['pytest']);
       this.selectedSecurity.set(['owasp', 'api-keys']);
       this.selectedMcp.set(['db-mcp', 'browser-mcp']);
+      this.splitModularArtifacts.set(false);
     } else if (presetId === 'rust-microservice') {
       this.architecturePattern.set('event-driven');
       this.selectedLanguages.set(['rust']);
@@ -576,6 +666,7 @@ export class AppComponent implements OnInit {
       this.selectedDatabases.set(['postgres', 'redis']);
       this.selectedTesting.set(['cargo-test']);
       this.selectedProtocols.set(['grpc', 'rest']);
+      this.splitModularArtifacts.set(false);
     } else if (presetId === 'web-ssr') {
       this.architecturePattern.set('modular');
       this.selectedLanguages.set(['typescript']);
@@ -583,6 +674,7 @@ export class AppComponent implements OnInit {
       this.selectedFrontend.set(['nextjs']);
       this.selectedDatabases.set(['supabase', 'postgres']);
       this.selectedTesting.set(['vitest']);
+      this.splitModularArtifacts.set(true);
     }
   }
 
@@ -628,7 +720,8 @@ export class AppComponent implements OnInit {
       enforce_spec_compliance_check: this.enforceSpecCompliance(),
       generate_unit_tests: this.generateUnitTests(),
       generate_integration_tests: this.generateIntegrationTests(),
-      generate_functional_tests: this.generateFunctionalTests()
+      generate_functional_tests: this.generateFunctionalTests(),
+      split_modular_artifacts: this.splitModularArtifacts()
     };
 
     this.specService.createSpec(payload).subscribe({
@@ -646,7 +739,7 @@ export class AppComponent implements OnInit {
   }
 
   selectSpec(spec: SpecResponse) {
-    this.currentSpec.set(spec);
+    this.loadProject(spec);
   }
 
   deleteSpec(id: string, event: Event) {

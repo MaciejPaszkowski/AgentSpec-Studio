@@ -26,6 +26,7 @@ class SpecCreateSchema(BaseModel):
     generate_unit_tests: bool = True
     generate_integration_tests: bool = True
     generate_functional_tests: bool = False
+    split_modular_artifacts: bool = False
 
 class SpecResponseSchema(SpecCreateSchema):
     id: str

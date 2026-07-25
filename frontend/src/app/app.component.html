@@ -1,5 +1,5 @@
 <div class="container">
-  <!-- Header with UI Language Selector -->
+  <!-- Header with UI Language Selector & Project Actions -->
   <header class="header">
     <div class="brand">
       <div class="brand-icon">⚡</div>
@@ -9,6 +9,12 @@
       </div>
     </div>
     <div class="header-actions" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+      <!-- Main Project Action Buttons -->
+      <div style="display: flex; gap: 0.4rem;">
+        <button class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" (click)="newProject()">{{ t('newProjectBtn') }}</button>
+        <button class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%);" (click)="saveProject()">{{ t('saveProjectBtn') }}</button>
+      </div>
+
       <!-- UI Interface Language Selector Bar -->
       <div style="background: rgba(15, 23, 42, 0.6); padding: 0.3rem 0.6rem; border-radius: 8px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.4rem;">
         <span style="font-size: 0.8rem; color: #a5b4fc; font-weight: 600;">{{ t('langLabel') }}</span>
@@ -57,8 +63,12 @@
   <div class="grid-layout">
     <!-- Left Column: Form & Preset Dropdowns -->
     <div class="card">
-      <div class="card-header">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
         <h2 class="card-title">{{ t('formTitle') }}</h2>
+        <div style="display: flex; gap: 0.4rem;">
+          <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" (click)="newProject()">{{ t('newProjectBtn') }}</button>
+          <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%);" (click)="saveProject()">{{ t('saveProjectBtn') }}</button>
+        </div>
       </div>
 
       <div class="form-group">
@@ -251,7 +261,7 @@
         </textarea>
       </div>
 
-      <!-- TDD & Workflow Options -->
+      <!-- TDD & Workflow Options & Modular Split Toggle -->
       <div class="form-group" style="background: rgba(15, 23, 42, 0.4); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
         <label class="form-label" style="font-weight: 600; color: #a5b4fc; margin-bottom: 0.75rem;">{{ t('workflowHeader') }}</label>
         
@@ -264,6 +274,11 @@
           <label class="toggle-switch">
             <input type="checkbox" [ngModel]="enforceSpecCompliance()" (ngModelChange)="enforceSpecCompliance.set($event)">
             <span>{{ t('enforceCompliance') }}</span>
+          </label>
+
+          <label class="toggle-switch" style="color: #a7f3d0;">
+            <input type="checkbox" [ngModel]="splitModularArtifacts()" (ngModelChange)="splitModularArtifacts.set($event)">
+            <span>{{ t('splitModularLabel') }}</span>
           </label>
 
           <div style="margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem;">
@@ -355,20 +370,26 @@
             @for (s of savedSpecs(); track s.id) {
               <div 
                 class="spec-item" 
-                (click)="selectSpec(s)">
+                (click)="loadProject(s)">
                 <div>
                   <strong style="color: var(--text-main); font-size: 0.95rem;">{{ s.title }}</strong>
                   <div class="badges">
                     <span class="badge">{{ s.agent_type }}</span>
                     <span class="badge" style="background: rgba(234, 179, 8, 0.2); color: #fde047;">{{ s.language_output?.toUpperCase() || 'PL' }}</span>
                     <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc;">{{ s.architecture_pattern }}</span>
+                    @if (s.split_modular_artifacts) {
+                      <span class="badge" style="background: rgba(52, 211, 153, 0.2); color: #6ee7b7;">🧩 Monorepo Split</span>
+                    }
                     <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">{{ s.deployment_mode }}</span>
                     @for (lang of s.languages; track lang) {
                       <span class="badge" style="background: rgba(6, 182, 212, 0.2); color: #67e8f9;">{{ lang }}</span>
                     }
                   </div>
                 </div>
-                <button class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" (click)="deleteSpec(s.id, $event)">{{ t('deleteBtn') }}</button>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                  <button class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" (click)="loadProject(s)">{{ t('loadProjectBtn') }}</button>
+                  <button class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; background: rgba(239, 68, 68, 0.2); color: #fca5a5;" (click)="deleteSpec(s.id, $event)">{{ t('deleteBtn') }}</button>
+                </div>
               </div>
             }
           </div>

@@ -64,4 +64,4 @@ cd frontend && npx ng build --configuration production
 ---
 
 ## 📜 License
-MIT License © 2026 AgentSpec Studio.
+MIT License © 2026 Maciej Paszkowski.

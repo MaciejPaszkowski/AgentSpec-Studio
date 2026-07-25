@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: agentspec_db
+    environment:
+      POSTGRES_USER: agentspec
+      POSTGRES_PASSWORD: agentspec_password
+      POSTGRES_DB: agentspec_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentspec -d agentspec_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: agentspec_backend
+    environment:
+      DATABASE_URL: postgresql://agentspec:agentspec_password@postgres:5432/agentspec_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: agentspec_frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

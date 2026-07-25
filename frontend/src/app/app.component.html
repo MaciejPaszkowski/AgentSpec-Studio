@@ -1,0 +1,383 @@
+<div class="container">
+  <!-- Header with UI Language Selector -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-title">
+        <h1>{{ t('headerTitle') }}</h1>
+        <p>{{ t('headerSubtitle') }}</p>
+      </div>
+    </div>
+    <div class="header-actions" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+      <!-- UI Interface Language Selector Bar -->
+      <div style="background: rgba(15, 23, 42, 0.6); padding: 0.3rem 0.6rem; border-radius: 8px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.4rem;">
+        <span style="font-size: 0.8rem; color: #a5b4fc; font-weight: 600;">{{ t('langLabel') }}</span>
+        <button class="btn" [style.background]="uiLanguage() === 'pl' ? 'rgba(99,102,241,0.5)' : 'transparent'" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" (click)="setUiLanguage('pl')">🇵🇱 PL</button>
+        <button class="btn" [style.background]="uiLanguage() === 'en' ? 'rgba(99,102,241,0.5)' : 'transparent'" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" (click)="setUiLanguage('en')">🇬🇧 EN</button>
+        <button class="btn" [style.background]="uiLanguage() === 'de' ? 'rgba(99,102,241,0.5)' : 'transparent'" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" (click)="setUiLanguage('de')">🇩🇪 DE</button>
+        <button class="btn" [style.background]="uiLanguage() === 'fr' ? 'rgba(99,102,241,0.5)' : 'transparent'" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" (click)="setUiLanguage('fr')">🇫🇷 FR</button>
+        <button class="btn" [style.background]="uiLanguage() === 'es' ? 'rgba(99,102,241,0.5)' : 'transparent'" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" (click)="setUiLanguage('es')">🇪🇸 ES</button>
+        <button class="btn" [style.background]="uiLanguage() === 'ru' ? 'rgba(99,102,241,0.5)' : 'transparent'" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" (click)="setUiLanguage('ru')">🇷🇺 RU</button>
+        @if (isTranslating()) {
+          <span style="font-size: 0.75rem; color: #fde047; font-weight: 500; margin-left: 0.4rem;">⏳ {{ t('autoTranslateBtn') }}...</span>
+        }
+      </div>
+
+      <button class="btn btn-secondary" (click)="showAiInterviewPrompt.set(!showAiInterviewPrompt())">
+        {{ showAiInterviewPrompt() ? t('hideAiInterviewBtn') : t('aiInterviewBtn') }}
+      </button>
+      <button class="btn btn-secondary" (click)="loadHistory()">{{ t('refreshDbBtn') }}</button>
+    </div>
+  </header>
+
+  <!-- AI Interview Prompt Banner -->
+  @if (showAiInterviewPrompt()) {
+    <div class="card" style="margin-bottom: 2rem; border-color: rgba(168, 85, 247, 0.5); background: rgba(88, 28, 135, 0.2);">
+      <h3 style="font-size: 1.1rem; color: #e9d5ff; margin-bottom: 0.5rem;">{{ t('aiInterviewTitle') }}</h3>
+      <p style="font-size: 0.85rem; color: #d8b4fe; margin-bottom: 1rem;">{{ t('aiInterviewSub') }} (<strong>{{ languageOutput().toUpperCase() }}</strong>):</p>
+      <pre class="code-preview" style="max-height: 120px;"><code>{{ aiInterviewPrompt }}</code></pre>
+    </div>
+  }
+
+  <!-- 1-Click Project Presets -->
+  <div style="margin-bottom: 1.5rem;">
+    <span style="font-size: 0.85rem; font-weight: 600; color: #a5b4fc; display: block; margin-bottom: 0.5rem;">{{ t('quickStartTitle') }}</span>
+    <div class="chip-grid">
+      @for (preset of (options()?.project_presets || []); track preset.id) {
+        <div 
+          class="chip" 
+          [class.selected]="presetTemplate() === preset.id"
+          (click)="applyPreset(preset.id)">
+          <span>{{ presetTemplate() === preset.id ? '★' : '☆' }}</span> {{ preset.name }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="grid-layout">
+    <!-- Left Column: Form & Preset Dropdowns -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">{{ t('formTitle') }}</h2>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ t('projNameLabel') }}</label>
+        <input type="text" class="form-control" [ngModel]="title()" (ngModelChange)="title.set($event)" [placeholder]="t('projNamePlaceholder')">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ t('projDescLabel') }}</label>
+        <input type="text" class="form-control" [ngModel]="description()" (ngModelChange)="description.set($event)" [placeholder]="t('projDescPlaceholder')">
+      </div>
+
+      <!-- Language & Agent Dropdowns -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label">{{ t('agentLabel') }}</label>
+          <select class="form-control" [ngModel]="agentType()" (ngModelChange)="agentType.set($event)">
+            @for (agent of (options()?.agents || []); track agent.id) {
+              <option [value]="agent.id">{{ agent.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">{{ t('envLabel') }}</label>
+          <select class="form-control" [ngModel]="deploymentMode()" (ngModelChange)="deploymentMode.set($event)">
+            @for (dep of (options()?.deployments || []); track dep.id) {
+              <option [value]="dep.id">{{ dep.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">{{ t('outLangLabel') }}</label>
+          <select class="form-control" [ngModel]="languageOutput()" (ngModelChange)="languageOutput.set($event)">
+            @for (lang of (options()?.output_languages || []); track lang.id) {
+              <option [value]="lang.id">{{ lang.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Architecture Pattern Selector -->
+      <div class="form-group">
+        <label class="form-label">{{ t('archLabel') }}</label>
+        <select class="form-control" [ngModel]="architecturePattern()" (ngModelChange)="architecturePattern.set($event)">
+          @for (arch of (options()?.architectures || []); track arch.id) {
+            <option [value]="arch.id">{{ arch.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Security & Compliance Chips -->
+      @if (options()?.security) {
+        <div class="form-group">
+          <label class="form-label">{{ t('securityLabel') }}</label>
+          <div class="chip-grid">
+            @for (item of options()!.security; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedSecurity, item.id)"
+                (click)="toggleChip(selectedSecurity, item.id)">
+                <span>{{ isSelected(selectedSecurity, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- API Protocols -->
+      @if (options()?.protocols) {
+        <div class="form-group">
+          <label class="form-label">{{ t('protocolsLabel') }}</label>
+          <div class="chip-grid">
+            @for (item of options()!.protocols; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedProtocols, item.id)"
+                (click)="toggleChip(selectedProtocols, item.id)">
+                <span>{{ isSelected(selectedProtocols, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- MCP Integrations & Skills -->
+      @if (options()?.mcp_skills) {
+        <div class="form-group">
+          <label class="form-label">{{ t('mcpLabel') }}</label>
+          <div class="chip-grid">
+            @for (item of options()!.mcp_skills; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedMcp, item.id)"
+                (click)="toggleChip(selectedMcp, item.id)">
+                <span>{{ isSelected(selectedMcp, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Git & CI/CD Presets -->
+      <div class="form-group">
+        <label class="form-label">{{ t('cicdLabel') }}</label>
+        <select class="form-control" [ngModel]="gitCiCd()" (ngModelChange)="gitCiCd.set($event)">
+          @for (ci of (options()?.ci_cd_presets || []); track ci.id) {
+            <option [value]="ci.id">{{ ci.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Languages Preset Chips -->
+      @if (options()?.languages) {
+        <div class="form-group">
+          <label class="form-label">{{ t('langLabelForm') }} <span>{{ t('selectFromList') }}</span></label>
+          <div class="chip-grid">
+            @for (item of options()!.languages; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedLanguages, item.id)"
+                (click)="toggleChip(selectedLanguages, item.id)">
+                <span>{{ isSelected(selectedLanguages, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Backend Frameworks -->
+      @if (options()?.backend_frameworks) {
+        <div class="form-group">
+          <label class="form-label">{{ t('backendLabel') }}</label>
+          <div class="chip-grid">
+            @for (item of options()!.backend_frameworks; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedBackend, item.id)"
+                (click)="toggleChip(selectedBackend, item.id)">
+                <span>{{ isSelected(selectedBackend, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Frontend Frameworks -->
+      @if (options()?.frontend_frameworks) {
+        <div class="form-group">
+          <label class="form-label">{{ t('frontendLabel') }}</label>
+          <div class="chip-grid">
+            @for (item of options()!.frontend_frameworks; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedFrontend, item.id)"
+                (click)="toggleChip(selectedFrontend, item.id)">
+                <span>{{ isSelected(selectedFrontend, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Databases -->
+      @if (options()?.databases) {
+        <div class="form-group">
+          <label class="form-label">{{ t('dbLabel') }}</label>
+          <div class="chip-grid">
+            @for (item of options()!.databases; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedDatabases, item.id)"
+                (click)="toggleChip(selectedDatabases, item.id)">
+                <span>{{ isSelected(selectedDatabases, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Manual Custom Rules Input -->
+      <div class="form-group">
+        <label class="form-label">{{ t('customRulesLabel') }}</label>
+        <textarea 
+          class="form-control" 
+          [ngModel]="customRules()" 
+          (ngModelChange)="customRules.set($event)" 
+          [placeholder]="t('customRulesPlaceholder')">
+        </textarea>
+      </div>
+
+      <!-- TDD & Workflow Options -->
+      <div class="form-group" style="background: rgba(15, 23, 42, 0.4); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+        <label class="form-label" style="font-weight: 600; color: #a5b4fc; margin-bottom: 0.75rem;">{{ t('workflowHeader') }}</label>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+          <label class="toggle-switch">
+            <input type="checkbox" [ngModel]="enforceTdd()" (ngModelChange)="enforceTdd.set($event)">
+            <span>{{ t('enforceTdd') }}</span>
+          </label>
+
+          <label class="toggle-switch">
+            <input type="checkbox" [ngModel]="enforceSpecCompliance()" (ngModelChange)="enforceSpecCompliance.set($event)">
+            <span>{{ t('enforceCompliance') }}</span>
+          </label>
+
+          <div style="margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">{{ t('testTypesHeader') }}</span>
+            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+              <label class="toggle-switch" style="font-size: 0.85rem;">
+                <input type="checkbox" [ngModel]="generateUnitTests()" (ngModelChange)="generateUnitTests.set($event)">
+                <span>{{ t('unitTests') }}</span>
+              </label>
+
+              <label class="toggle-switch" style="font-size: 0.85rem;">
+                <input type="checkbox" [ngModel]="generateIntegrationTests()" (ngModelChange)="generateIntegrationTests.set($event)">
+                <span>{{ t('integrationTests') }}</span>
+              </label>
+
+              <label class="toggle-switch" style="font-size: 0.85rem;">
+                <input type="checkbox" [ngModel]="generateFunctionalTests()" (ngModelChange)="generateFunctionalTests.set($event)">
+                <span>{{ t('functionalTests') }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" (click)="generate()" [disabled]="isLoading()" style="width: 100%;">
+        @if (!isLoading()) {
+          <span>{{ t('generateBtn') }} (DOCS: {{ languageOutput().toUpperCase() }})</span>
+        } @else {
+          <span>{{ t('generating') }}</span>
+        }
+      </button>
+    </div>
+
+    <!-- Right Column: Artifact Preview & PostgreSQL History -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">{{ t('previewTitle') }}</h2>
+      </div>
+
+      @if (currentSpec()) {
+        <div class="preview-container">
+          <div class="tabs">
+            <button 
+              class="tab" 
+              [class.active]="activeTab() === 'agents'" 
+              (click)="activeTab.set('agents')">
+              {{ currentSpec()?.agent_type === 'claude-code' ? 'CLAUDE.md' : 'AGENTS.md' }}
+            </button>
+            <button 
+              class="tab" 
+              [class.active]="activeTab() === 'spec'" 
+              (click)="activeTab.set('spec')">
+              SPEC.md
+            </button>
+            <button 
+              class="tab" 
+              [class.active]="activeTab() === 'tasks'" 
+              (click)="activeTab.set('tasks')">
+              TASKS.md
+            </button>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <button class="btn btn-secondary" (click)="copyContent()">{{ t('copyBtn') }}</button>
+            <button class="btn btn-primary" (click)="downloadZip()">{{ t('downloadZipBtn') }}</button>
+          </div>
+
+          @if (copyNotification()) {
+            <div class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; margin-bottom: 0.5rem; display: inline-block;">
+              {{ copyNotification() }}
+            </div>
+          }
+
+          <pre class="code-preview"><code>{{ activeContent }}</code></pre>
+        </div>
+      } @else {
+        <div style="text-align: center; color: var(--text-muted); padding: 3rem 1rem;">
+          <p style="font-size: 2.5rem; margin-bottom: 1rem;">⚙️</p>
+          <p>{{ t('emptyPreview') }}</p>
+        </div>
+      }
+
+      <!-- History List from PostgreSQL -->
+      <div style="margin-top: 2.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: #cbd5e1;">{{ t('historyTitle') }}</h3>
+
+        @if (savedSpecs().length > 0) {
+          <div class="specs-list">
+            @for (s of savedSpecs(); track s.id) {
+              <div 
+                class="spec-item" 
+                (click)="selectSpec(s)">
+                <div>
+                  <strong style="color: var(--text-main); font-size: 0.95rem;">{{ s.title }}</strong>
+                  <div class="badges">
+                    <span class="badge">{{ s.agent_type }}</span>
+                    <span class="badge" style="background: rgba(234, 179, 8, 0.2); color: #fde047;">{{ s.language_output?.toUpperCase() || 'PL' }}</span>
+                    <span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc;">{{ s.architecture_pattern }}</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">{{ s.deployment_mode }}</span>
+                    @for (lang of s.languages; track lang) {
+                      <span class="badge" style="background: rgba(6, 182, 212, 0.2); color: #67e8f9;">{{ lang }}</span>
+                    }
+                  </div>
+                </div>
+                <button class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" (click)="deleteSpec(s.id, $event)">{{ t('deleteBtn') }}</button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div style="color: var(--text-muted); font-size: 0.85rem;">
+            {{ t('emptyHistory') }}
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

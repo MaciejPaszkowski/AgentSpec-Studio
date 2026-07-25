@@ -1,0 +1,220 @@
+<div class="container">
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-title">
+        <h1>AgentSpec Studio</h1>
+        <p>Generator Specyfikacji, Reguł AGENTS.md i Metodyki AI-TDD dla Agentów AI</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="loadHistory()">🔄 Odśwież Bazu</button>
+    </div>
+  </header>
+
+  <div class="grid-layout">
+    <!-- Left Column: Form & Preset Dropdowns -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📝 Konfiguracja Projektu i Technologii</h2>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nazwa Projektu / Funkcjonalności</label>
+        <input type="text" class="form-control" [ngModel]="title()" (ngModelChange)="title.set($event)" placeholder="np. System Rozliczeń E-commerce">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Opis i Cel Biznesowy</label>
+        <input type="text" class="form-control" [ngModel]="description()" (ngModelChange)="description.set($event)" placeholder="np. Moduł obliczający zniżki i generujący faktury">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Docelowy Agent AI</label>
+        <select class="form-control" [ngModel]="agentType()" (ngModelChange)="agentType.set($event)">
+          @if (options()?.agents) {
+            @for (agent of options()!.agents; track agent.id) {
+              <option [value]="agent.id">{{ agent.name }}</option>
+            }
+          }
+        </select>
+      </div>
+
+      <!-- Languages Preset Chips -->
+      @if (options()?.languages) {
+        <div class="form-group">
+          <label class="form-label">Języki Programowania <span>(wybierz z listy)</span></label>
+          <div class="chip-grid">
+            @for (item of options()!.languages; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedLanguages, item.id)"
+                (click)="toggleChip(selectedLanguages, item.id)">
+                <span>{{ isSelected(selectedLanguages, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Backend Frameworks -->
+      @if (options()?.backend_frameworks) {
+        <div class="form-group">
+          <label class="form-label">Frameworki Backendowe</label>
+          <div class="chip-grid">
+            @for (item of options()!.backend_frameworks; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedBackend, item.id)"
+                (click)="toggleChip(selectedBackend, item.id)">
+                <span>{{ isSelected(selectedBackend, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Frontend Frameworks -->
+      @if (options()?.frontend_frameworks) {
+        <div class="form-group">
+          <label class="form-label">Frameworki Frontendowe</label>
+          <div class="chip-grid">
+            @for (item of options()!.frontend_frameworks; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedFrontend, item.id)"
+                (click)="toggleChip(selectedFrontend, item.id)">
+                <span>{{ isSelected(selectedFrontend, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Databases -->
+      @if (options()?.databases) {
+        <div class="form-group">
+          <label class="form-label">Bazy Danych i Przechowywanie</label>
+          <div class="chip-grid">
+            @for (item of options()!.databases; track item.id) {
+              <div 
+                class="chip" 
+                [class.selected]="isSelected(selectedDatabases, item.id)"
+                (click)="toggleChip(selectedDatabases, item.id)">
+                <span>{{ isSelected(selectedDatabases, item.id) ? '✓' : '+' }}</span> {{ item.name }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Manual Custom Rules Input -->
+      <div class="form-group">
+        <label class="form-label">✍️ Ręcznie Wpisane Zasady i Wymagania Architektoniczne <span>(Custom Rules)</span></label>
+        <textarea 
+          class="form-control" 
+          [ngModel]="customRules()" 
+          (ngModelChange)="customRules.set($event)" 
+          placeholder="Tutaj możesz dopisać ręcznie specyficzne zasady, wzorce projektowe, reguły bezpieczeństwa czy ograniczenia domeny...">
+        </textarea>
+      </div>
+
+      <!-- Enforce TDD Toggle -->
+      <div class="form-group">
+        <label class="toggle-switch">
+          <input type="checkbox" [ngModel]="enforceTdd()" (ngModelChange)="enforceTdd.set($event)">
+          <span>🔴🟢 Wymuszaj cykl AI-TDD (Red-Green-Refactor) w instrukcji agenta</span>
+        </label>
+      </div>
+
+      <button class="btn btn-primary" (click)="generate()" [disabled]="isLoading()" style="width: 100%;">
+        @if (!isLoading()) {
+          <span>🚀 Wygeneruj Specyfikację i Reguły Agenta</span>
+        } @else {
+          <span>Generowanie...</span>
+        }
+      </button>
+    </div>
+
+    <!-- Right Column: Artifact Preview & PostgreSQL History -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📄 Podgląd Artefaktów Agenta AI</h2>
+      </div>
+
+      @if (currentSpec()) {
+        <div class="preview-container">
+          <div class="tabs">
+            <button 
+              class="tab" 
+              [class.active]="activeTab() === 'agents'" 
+              (click)="activeTab.set('agents')">
+              {{ currentSpec()?.agent_type === 'claude-code' ? 'CLAUDE.md' : 'AGENTS.md' }}
+            </button>
+            <button 
+              class="tab" 
+              [class.active]="activeTab() === 'spec'" 
+              (click)="activeTab.set('spec')">
+              SPEC.md
+            </button>
+            <button 
+              class="tab" 
+              [class.active]="activeTab() === 'tasks'" 
+              (click)="activeTab.set('tasks')">
+              TASKS.md
+            </button>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <button class="btn btn-secondary" (click)="copyContent()">📋 Kopiuj Plik</button>
+            <button class="btn btn-primary" (click)="downloadZip()">📦 Pobierz Paczkę ZIP</button>
+          </div>
+
+          @if (copyNotification()) {
+            <div class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; margin-bottom: 0.5rem; display: inline-block;">
+              {{ copyNotification() }}
+            </div>
+          }
+
+          <pre class="code-preview"><code>{{ activeContent }}</code></pre>
+        </div>
+      } @else {
+        <div style="text-align: center; color: var(--text-muted); padding: 3rem 1rem;">
+          <p style="font-size: 2.5rem; margin-bottom: 1rem;">⚙️</p>
+          <p>Skonfiguruj stos po lewej stronie i kliknij <strong>Wygeneruj Specyfikację</strong>, aby zobaczyć wygenerowane pliki `AGENTS.md`, `SPEC.md` i `TASKS.md`.</p>
+        </div>
+      }
+
+      <!-- History List from PostgreSQL -->
+      <div style="margin-top: 2.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: #cbd5e1;">🗄️ Zapisane Specyfikacje w Bazie PostgreSQL</h3>
+
+        @if (savedSpecs().length > 0) {
+          <div class="specs-list">
+            @for (s of savedSpecs(); track s.id) {
+              <div 
+                class="spec-item" 
+                (click)="selectSpec(s)">
+                <div>
+                  <strong style="color: var(--text-main); font-size: 0.95rem;">{{ s.title }}</strong>
+                  <div class="badges">
+                    <span class="badge">{{ s.agent_type }}</span>
+                    @for (lang of s.languages; track lang) {
+                      <span class="badge" style="background: rgba(6, 182, 212, 0.2); color: #67e8f9;">{{ lang }}</span>
+                    }
+                  </div>
+                </div>
+                <button class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" (click)="deleteSpec(s.id, $event)">Usuń</button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div style="color: var(--text-muted); font-size: 0.85rem;">
+            Brak zapisanych specyfikacji w bazie. Wygeneruj pierwszą powyżej!
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -17,7 +17,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="AgentSpec Studio API",
     description="API do zbierania specyfikacji i generowania reguł dla agentów AI z obsługą 6 języków wyjściowych",
-    version="2.0.0"
+    version="0.1.0"
 )
 
 # Enable CORS for Angular frontend
